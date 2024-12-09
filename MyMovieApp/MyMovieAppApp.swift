@@ -10,13 +10,24 @@ import SwiftUI
 @main
 struct MyMovieAppApp: App {
     @AppStorage("isOnboarding") var isOnboarding: Bool = true
+    @State var viewModel = MoviesViewModel()
+    @State var launchScreenPresented = false
     var body: some Scene {
         WindowGroup {
-            if isOnboarding {
-                OnboardingView()
-            } else {
-                ContentView()
+            NavigationStack {
+                ZStack {
+                    if isOnboarding {
+                        OnboardingView()
+                    } else {
+                        MoviesView()
+                            .environmentObject(viewModel)
+                    }
+                    LaunchScreenAnimation(isPresented: $launchScreenPresented)
+                        .opacity(launchScreenPresented ? 0 : 1)
+                }
             }
+          
+            
         }
     }
 }

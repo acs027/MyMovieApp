@@ -13,6 +13,7 @@ enum Router: URLRequestConvertible {
     case nowPlaying(page: Int?)
     case topRated(page: Int?)
     case upcoming(page: Int?)
+    case configuration
     
     var baseURL: URL? {
         return URL(string: "https://api.themoviedb.org/3/")
@@ -28,6 +29,8 @@ enum Router: URLRequestConvertible {
             return "movie/top_rated"
         case .upcoming:
             return "movie/upcoming"
+        case .configuration:
+            return "configuration"
         }
     }
     
@@ -54,6 +57,8 @@ enum Router: URLRequestConvertible {
             if let page {
                 params["page"] = page
             }
+        default:
+            print("nothing")
         }
         return params
     }

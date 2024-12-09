@@ -35,3 +35,13 @@ final class MoviesService: MoviesServiceProtocol {
         NetworkManager.shared.request(Router.upcoming(page: page), decodeTo: MovieResponse.self, completion: completion)
     }
 }
+
+protocol APIServiceProtocol {
+    func fetchConfiguration(completion: @escaping (Result<ConfigurationResponse, NetworkError>) -> ())
+}
+
+final class APIService: APIServiceProtocol {
+    func fetchConfiguration(completion: @escaping (Result<ConfigurationResponse, NetworkError>) -> ()) {
+        NetworkManager.shared.request(Router.configuration, decodeTo: ConfigurationResponse.self, completion: completion)
+    }
+}
