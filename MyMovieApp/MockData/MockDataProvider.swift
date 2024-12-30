@@ -24,6 +24,22 @@ struct MockDataProvider {
         }
     }
     
+    func movieDetails() -> MovieDetails? {
+        if let url = Bundle.main.url(forResource: "movieDetailsResponse", withExtension: "json") {
+            do {
+                let data = try Data(contentsOf: url)
+                let decoded = try JSONDecoder().decode(MovieDetails.self, from: data)
+                return decoded
+            } catch {
+                print("Error occured while decoding Data")
+                return nil
+            }
+        } else {
+            print("Error occured while getting url")
+            return nil
+        }
+    }
+    
     func imageConfiguration() -> ImageConfiguration? {
         if let url = Bundle.main.url(forResource: "configurationResponse", withExtension: "json") {
             do {

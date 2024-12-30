@@ -14,6 +14,7 @@ enum Router: URLRequestConvertible {
     case topRated(page: Int?)
     case upcoming(page: Int?)
     case configuration
+    case movieDetails(id: Int)
     
     var baseURL: URL? {
         return URL(string: "https://api.themoviedb.org/3/")
@@ -31,6 +32,8 @@ enum Router: URLRequestConvertible {
             return "movie/upcoming"
         case .configuration:
             return "configuration"
+        case .movieDetails(id: let id):
+            return "movie/\(id)"
         }
     }
     

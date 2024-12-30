@@ -6,40 +6,64 @@
 //
 
 import Foundation
+import CoreData
 
 final class MoviesViewModel: ObservableObject {
-    @Published var movies: [Movie] = []
-    @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
     @Published var posterImages = [String: Data]()
-    
+    @Published var movies: [CDMovie] = []
+    @Published var isDetailsShowing = false
+    private(set) var tappedMovieId = 0
+    private(set) var isPopularMoviesLoading = false
+    private(set) var isUpcomingMoviesLoading = false
+    private(set) var isNowPlayingLoading = false
     private var service = MoviesService()
     private var apiService = APIService()
     private var page = 1
-    var imageConfiguration: ImageConfiguration?
+    private var imageConfiguration: ImageConfiguration?
+    private var context = PersistenceController.shared.container.viewContext
+    
+    
     
     
 #if DEBUG
     init() {
-        movies = MockDataProvider().popularMovies()
+        _ = MockDataProvider().popularMovies().map({ movie in
+            let popularMovie = CDMovie(from: movie, context: context)
+            let coinflip = Int.random(in: 0...2)
+            if coinflip == 0 {
+                popularMovie.isPopular = true
+            } else if coinflip == 1 {
+                popularMovie.isNowPlaying = true
+            } else {
+                popularMovie.isUpcoming = true
+            }
+        })
+        PersistenceController.shared.save()
         imageConfiguration = MockDataProvider().imageConfiguration()
+        fetchMovies()
     }
 #endif
     
     
     func fetchPopularMovies() async {
         DispatchQueue.main.async {
-            self.isLoading = true
+            self.isPopularMoviesLoading = true
         }
         service.fetchPopularMovies(page: page) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let movieResponse):
-                movies = movieResponse.results
-                isLoading = false
+//                movies = movieResponse.results
+                _ = movieResponse.results.map {
+                    let popularMovie = CDMovie(from: $0, context: self.context)
+                    popularMovie.isPopular = true
+                }
+                
+                isPopularMoviesLoading = false
                 //                page += 1
             case .failure(let error):
-                isLoading = false
+                isPopularMoviesLoading = false
                 errorMessage = error.localizedDescription
                 debugPrint("\(error.localizedDescription)")
                 //                page = 1
@@ -49,20 +73,39 @@ final class MoviesViewModel: ObservableObject {
     
     func fetchUpcomingMovies() async {
         DispatchQueue.main.async {
-            self.isLoading = true
+            self.isUpcomingMoviesLoading = true
         }
         service.fetchUpcomingMovies(page: page) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let movieResponse):
-                movies = movieResponse.results
-                isLoading = false
+//                movies = movieResponse.results
+                isUpcomingMoviesLoading = false
                 //                page += 1
             case .failure(let error):
-                isLoading = false
+                isUpcomingMoviesLoading = false
                 errorMessage = error.localizedDescription
                 debugPrint("\(error.localizedDescription)")
                 //                page = 1
+            }
+        }
+    }
+    
+    func fetchNowPlayingMovies() async {
+        DispatchQueue.main.async {
+            self.isNowPlayingLoading = true
+        }
+        service.fetchNowPlayingMovies(page: page) { [weak self] result in
+            guard let self else { return }
+            switch result {
+                case .success(let movieResponse):
+//                    movies = movieResponse.results
+                    isNowPlayingLoading = false
+                case .failure(let error):
+                    isNowPlayingLoading = false
+                    errorMessage = error.localizedDescription
+                    debugPrint("\(error.localizedDescription)")
+                
             }
         }
     }
@@ -98,6 +141,21 @@ final class MoviesViewModel: ObservableObject {
         } catch {
             print("fetch image failed")
         }
+    }
+    
+    func fetchMovies() {
+        let fetchRequest: NSFetchRequest<CDMovie> = CDMovie.fetchRequest()
+
+        do {
+            self.movies = try context.fetch(fetchRequest)
+        } catch {
+            print("Error fetching movies: \(error.localizedDescription)")
+        }
+    }
+    
+    func showMovieDetails(id: Int) {
+        self.tappedMovieId = id
+        self.isDetailsShowing = true
     }
 }
 

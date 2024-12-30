@@ -11,21 +11,21 @@ struct MoviesView: View {
     @EnvironmentObject var viewModel: MoviesViewModel
     
     var body: some View {
-
         ScrollView {
             LazyVStack(alignment: .leading){
-//                popularMovies
-                HorizontalMovies(title: "Now Playing")
-//                    .environmentObject(viewModel)
-                HorizontalMovies(title: "Popular Movies")
-//                    .environmentObject(viewModel)
+                HorizontalMovies(movies: viewModel.movies.filter({ $0.isUpcoming }),title: "Upcoming Movies")
+                HorizontalMovies(movies: viewModel.movies.filter({ $0.isNowPlaying }),title: "Now Playing")
+                HorizontalMovies(movies: viewModel.movies.filter({ $0.isPopular }),title: "Popular Movies")
             }
             .scrollIndicators(.hidden)
         }
-        //            fetchPopularMovies
-        //            fetchUpcomingMovies
-        
         .padding()
+        .sheet(isPresented: $viewModel.isDetailsShowing, content: {
+            let movieDetailsViewModel = MovieDetailsViewModel(id: viewModel.tappedMovieId)
+            NavigationStack {
+                MovieDetailsView(viewmodel: movieDetailsViewModel)
+            }
+        })
     }
 }
 
@@ -33,8 +33,4 @@ struct MoviesView: View {
     @Previewable @StateObject var viewModel = MoviesViewModel()
     MoviesView()
         .environmentObject(viewModel)
-        .onAppear {
-            viewModel.imageConfiguration = MockDataProvider().imageConfiguration()
-            viewModel.movies = MockDataProvider().popularMovies()
-        }
 }

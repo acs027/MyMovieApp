@@ -26,8 +26,6 @@ struct MyMovieAppApp: App {
                         .opacity(launchScreenPresented ? 0 : 1)
                 }
             }
-          
-            
         }
     }
 }

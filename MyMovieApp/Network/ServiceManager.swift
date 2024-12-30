@@ -45,3 +45,13 @@ final class APIService: APIServiceProtocol {
         NetworkManager.shared.request(Router.configuration, decodeTo: ConfigurationResponse.self, completion: completion)
     }
 }
+
+protocol MovieDetailsServiceProtocol {
+    func fetchMovieDetails(id: Int, completion: @escaping (Result<MovieDetails, NetworkError>) -> ())
+}
+
+final class MovieDetailsService: MovieDetailsServiceProtocol {
+    func fetchMovieDetails(id: Int, completion: @escaping (Result<MovieDetails, NetworkError>) -> ()) {
+        NetworkManager.shared.request(Router.movieDetails(id: id), decodeTo: MovieDetails.self, completion: completion)
+    }
+}

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HorizontalMovies: View {
     @EnvironmentObject var viewModel: MoviesViewModel
+    var movies: [CDMovie]
     var title: String
     var imageWidth = UIScreen.main.bounds.width / 3
     
@@ -17,8 +18,11 @@ struct HorizontalMovies: View {
             header
             ScrollView(.horizontal) {
                 LazyHStack {
-                    ForEach(viewModel.movies) { movie in
+                    ForEach(movies) { movie in
                         moviePoster(of: movie)
+                            .onTapGesture {
+                                viewModel.showMovieDetails(id: Int(movie.id))
+                            }
                     }
                 }
             }
@@ -32,8 +36,8 @@ struct HorizontalMovies: View {
     }
     
     @ViewBuilder
-    func moviePoster(of movie: Movie) -> some View {
-        if let data = viewModel.posterImages[movie.posterPath] {
+    func moviePoster(of movie: CDMovie) -> some View {
+        if let data = viewModel.posterImages[movie.posterPath!] {
             Image(uiImage: UIImage(data: data)!)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -42,9 +46,10 @@ struct HorizontalMovies: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         } else {
             ProgressView()
+                .frame(width: imageWidth)
                 .onAppear {
                     Task {
-                        await viewModel.fetchImage(with: movie.posterPath)
+                        await viewModel.fetchImage(with: movie.posterPath!)
                     }
                 }
         }
@@ -53,11 +58,12 @@ struct HorizontalMovies: View {
 
 #Preview {
     @Previewable @StateObject var viewModel = MoviesViewModel()
-    HorizontalMovies(title: "Popular Movies")
-        .environmentObject(viewModel)
-        .padding()
-        .onAppear {
-            viewModel.imageConfiguration = MockDataProvider().imageConfiguration()
-            viewModel.movies = MockDataProvider().popularMovies()
+    ScrollView{
+        VStack {
+            HorizontalMovies(movies: viewModel.movies, title: "Popular Movies")
+                .environmentObject(viewModel)
         }
+    }
+    .padding()
+    
 }
