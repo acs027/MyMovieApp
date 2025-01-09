@@ -10,13 +10,18 @@ import Foundation
 class MovieDetailsViewModel: ObservableObject {
     @Published var isDetailsLoading = true
     @Published var movieDetails: MovieDetails?
+    @Published var backdropData: [Data] = []
     var errorMessage = ""
     let id: Int
-    private var detailsService: MovieDetailsService
+    private var detailsService: MoviesService
     private var imageConfiguration: ImageConfiguration?
     
+    var backgroundColor: RGBA {
+        backdropData.first?.averageColorRGBA ?? .clear
+    }
+    
     init(id: Int) {
-        detailsService = MovieDetailsService()
+        detailsService = MoviesService()
         self.id = id
         imageConfiguration = MockDataProvider().imageConfiguration()
         #if DEBUG
@@ -34,7 +39,9 @@ class MovieDetailsViewModel: ObservableObject {
             switch result {
             case .success(let movieDetails):
                 self.movieDetails = movieDetails
-                isDetailsLoading = false
+                Task {
+                    await self.fetchImageData()
+                }
             case .failure(let error):
                 isDetailsLoading = false
                 errorMessage = error.localizedDescription
@@ -43,12 +50,20 @@ class MovieDetailsViewModel: ObservableObject {
         }
     }
     
-    func getBackdropURL() -> URL? {
-        guard let posterURL = movieDetails?.backdropPath else { return nil }
-        guard let baseURL = imageConfiguration?.secureBaseURL else { return nil }
-        guard let posterSize = imageConfiguration?.posterSizes.last else { return nil }
-        let imageURL = URL(string: baseURL+posterSize+posterURL)
-        print(imageURL ?? "invalid url")
-        return imageURL
+    func fetchImageData() async  {
+        guard let posterPath = movieDetails?.backdropPath else { return }
+        guard let baseURL = imageConfiguration?.secureBaseURL else { return }
+        guard let posterSize = imageConfiguration?.posterSizes.last else { return }
+        guard let url = URL(string: baseURL+posterSize+posterPath) else { return }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            DispatchQueue.main.async {
+                self.backdropData.append(data)
+                self.isDetailsLoading = false
+            }
+        } catch {
+            isDetailsLoading = false
+            print("fetch image failed")
+        }
     }
 }

@@ -16,42 +16,40 @@ protocol MoviesServiceProtocol {
     func fetchTopRatedMovies(page: Int?, completion: @escaping (Result<MovieResponse, NetworkError>) -> ())
     
     func fetchUpcomingMovies(page: Int?, completion: @escaping (Result<MovieResponse, NetworkError>) -> ())
-}
-
-final class MoviesService: MoviesServiceProtocol {
-    func fetchPopularMovies(page: Int?, completion: @escaping (Result<MovieResponse, NetworkError>) -> ()) {
-        NetworkManager.shared.request(Router.popular(page: page), decodeTo: MovieResponse.self, completion: completion)
-    }
     
-    func fetchNowPlayingMovies(page: Int?, completion: @escaping (Result<MovieResponse, NetworkError>) -> ()) {
-        NetworkManager.shared.request(Router.nowPlaying(page: page), decodeTo: MovieResponse.self, completion: completion)
-    }
-    
-    func fetchTopRatedMovies(page: Int?, completion: @escaping (Result<MovieResponse, NetworkError>) -> ()) {
-        NetworkManager.shared.request(Router.topRated(page: page), decodeTo: MovieResponse.self, completion: completion)
-    }
-    
-    func fetchUpcomingMovies(page: Int?, completion: @escaping (Result<MovieResponse, NetworkError>) -> ()) {
-        NetworkManager.shared.request(Router.upcoming(page: page), decodeTo: MovieResponse.self, completion: completion)
-    }
-}
-
-protocol APIServiceProtocol {
     func fetchConfiguration(completion: @escaping (Result<ConfigurationResponse, NetworkError>) -> ())
-}
-
-final class APIService: APIServiceProtocol {
-    func fetchConfiguration(completion: @escaping (Result<ConfigurationResponse, NetworkError>) -> ()) {
-        NetworkManager.shared.request(Router.configuration, decodeTo: ConfigurationResponse.self, completion: completion)
-    }
-}
-
-protocol MovieDetailsServiceProtocol {
+    
     func fetchMovieDetails(id: Int, completion: @escaping (Result<MovieDetails, NetworkError>) -> ())
 }
 
-final class MovieDetailsService: MovieDetailsServiceProtocol {
+final class MoviesService: MoviesServiceProtocol {
+    private let network: NetworkProtocol
+    
+    init(networkManager: NetworkProtocol = NetworkManager.shared) {
+        network = networkManager
+    }
+    
+    func fetchPopularMovies(page: Int?, completion: @escaping (Result<MovieResponse, NetworkError>) -> ()) {
+        network.request(Router.popular(page: page), decodeTo: MovieResponse.self, completion: completion)
+    }
+    
+    func fetchNowPlayingMovies(page: Int?, completion: @escaping (Result<MovieResponse, NetworkError>) -> ()) {
+        network.request(Router.nowPlaying(page: page), decodeTo: MovieResponse.self, completion: completion)
+    }
+    
+    func fetchTopRatedMovies(page: Int?, completion: @escaping (Result<MovieResponse, NetworkError>) -> ()) {
+        network.request(Router.topRated(page: page), decodeTo: MovieResponse.self, completion: completion)
+    }
+    
+    func fetchUpcomingMovies(page: Int?, completion: @escaping (Result<MovieResponse, NetworkError>) -> ()) {
+        network.request(Router.upcoming(page: page), decodeTo: MovieResponse.self, completion: completion)
+    }
+    
+    func fetchConfiguration(completion: @escaping (Result<ConfigurationResponse, NetworkError>) -> ()) {
+        network.request(Router.configuration, decodeTo: ConfigurationResponse.self, completion: completion)
+    }
+    
     func fetchMovieDetails(id: Int, completion: @escaping (Result<MovieDetails, NetworkError>) -> ()) {
-        NetworkManager.shared.request(Router.movieDetails(id: id), decodeTo: MovieDetails.self, completion: completion)
+        network.request(Router.movieDetails(id: id), decodeTo: MovieDetails.self, completion: completion)
     }
 }

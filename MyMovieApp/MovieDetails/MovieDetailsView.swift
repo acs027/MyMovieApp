@@ -8,47 +8,59 @@
 import SwiftUI
 
 struct MovieDetailsView: View {
-    @ObservedObject var viewmodel: MovieDetailsViewModel
+    @ObservedObject var viewModel: MovieDetailsViewModel
+
     
     var body: some View {
-        if viewmodel.isDetailsLoading {
-            ProgressView()
-                .onAppear {
-                    fetchMovieDetails()
+        Group {
+            if viewModel.isDetailsLoading {
+                ProgressView()
+                    .onAppear {
+                        fetchMovieDetails()
+                    }
+            } else {
+                VStack(alignment: .leading) {
+                    backdrop
+                    movieTitle
+                    HStack {
+                        releaseDate
+                        Spacer()
+                        movieVotes
+                    }
+                    genres
+                    movieBudget
+                    movieRevenue
+                    movieRuntime
+                    overview
+                    goToImdb
                 }
-        } else {
-            VStack(alignment: .leading) {
-                backdrop
-                movieTitle
-                releaseDate
-                overview
-                goToImdb
-                movieVotes
+                .padding()
             }
-            .padding()
         }
+        .frame(maxHeight: .infinity)
+        .background(Color(uiColor: viewModel.backgroundColor.color))
     }
     
+    @ViewBuilder
     var backdrop: some View {
-        AsyncImage(url: viewmodel.getBackdropURL()) { phase in
-            switch phase {
-            case .success(let image):
-                image
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxWidth: .infinity)
-            case .failure(_):
-                Text("Failed to load image")
-            case .empty:
-                ProgressView()
-            @unknown default:
-                EmptyView()
-            }
+        if let imageData = viewModel.backdropData.first  {
+            Image(uiImage: UIImage(data: imageData)!)
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+        } else {
+            ProgressView()
+                .onAppear {
+                    Task {
+                        await viewModel.fetchImageData()
+                    }
+                }
         }
     }
     
     var movieTitle: some View {
-        Text(viewmodel.movieDetails?.originalTitle ?? "Unknown")
+        Text(viewModel.movieDetails?.originalTitle ?? "Unknown")
             .font(.largeTitle)
             .bold()
     }
@@ -57,30 +69,28 @@ struct MovieDetailsView: View {
         HStack {
             Text("Release date: ")
                 .bold()
-            Text(viewmodel.movieDetails?.releaseDate ?? "Unknown")
+            Text(viewModel.movieDetails?.releaseDate ?? "Unknown")
         }
     }
     
     var overview: some View {
-        Text(viewmodel.movieDetails?.overview ?? "")
+        Text(viewModel.movieDetails?.overview ?? "Unknown")
     }
     
     var genres: some View {
         HStack {
-            Text("Genres: ")
-            if viewmodel.movieDetails != nil {
-                ForEach(viewmodel.movieDetails!.genres, id:\.self.id) { genre in
-                    Text(genre.name ?? "unknown")
-                }
+            Text("Genres: ").bold()
+            if let movieDetails = viewModel.movieDetails {
+                Text(movieDetails.genres.compactMap { $0.name }.joined(separator: ", ")
+                )
             }
         }
-        .padding()
     }
     
     var production: some View {
         HStack {
-            if viewmodel.movieDetails != nil {
-                ForEach(viewmodel.movieDetails!.productionCompanies, id:\.self.id) { company in
+            if viewModel.movieDetails != nil {
+                ForEach(viewModel.movieDetails!.productionCompanies, id:\.self.id) { company in
                     RoundedRectangle(cornerRadius: 25)
                         .fill(Color.gray)
                         .frame(height: 50)
@@ -94,8 +104,8 @@ struct MovieDetailsView: View {
     
     var goToImdb: some View {
         NavigationLink {
-            if let imdbId = viewmodel.movieDetails?.imdbId {
-                MovieDetailsImdb(imdbId: imdbId)
+            if let imdbId = viewModel.movieDetails?.imdbId {
+                ImdbWebView(imdbId: imdbId)
             } else {
                 Text("Couldn't reach to the IMDB page.")
             }
@@ -109,6 +119,7 @@ struct MovieDetailsView: View {
                     }
                     .foregroundStyle(.black)
                 }
+                .frame(maxHeight: .infinity, alignment: .bottom)
         }
     }
     
@@ -116,15 +127,39 @@ struct MovieDetailsView: View {
         HStack {
             Image(systemName: "star")
             Text(String(
-                format: "%.1f", viewmodel.movieDetails?.voteAverage ?? 0.0
-            ) + "(\(viewmodel.movieDetails?.voteCount ?? 0))")
+                format: "%.1f", viewModel.movieDetails?.voteAverage ?? 0.0
+            ) + "(\(viewModel.movieDetails?.voteCount ?? 0))")
+        }
+    }
+    
+    var movieBudget: some View {
+        HStack {
+            Text("Budget :")
+                .bold()
+            Text("\(viewModel.movieDetails?.budget ?? 0)")
+        }
+    }
+    
+    var movieRevenue: some View {
+        HStack {
+            Text("Revenue :")
+                .bold()
+            Text("\(viewModel.movieDetails?.revenue ?? 0)")
+        }
+    }
+    
+    var movieRuntime: some View {
+        HStack {
+            Text("Runtime :")
+                .bold()
+            Text("\(viewModel.movieDetails?.runtime ?? 0)")
         }
     }
     
     
     func fetchMovieDetails() {
         Task {
-            await viewmodel.fetchMovieDetails()
+            await viewModel.fetchMovieDetails()
         }
     }
 }
@@ -133,6 +168,6 @@ struct MovieDetailsView: View {
     @Previewable @State var isPresented: Bool = true
     ProgressView()
         .sheet(isPresented: $isPresented) {
-            MovieDetailsView(viewmodel: MovieDetailsViewModel(id: 945961))
+            MovieDetailsView(viewModel: MovieDetailsViewModel(id: 945961))
         }
 }

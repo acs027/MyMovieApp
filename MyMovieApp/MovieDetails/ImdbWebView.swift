@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MovieDetailsImdb: View {
+struct ImdbWebView: View {
     let webView = WebView()
     @State var urlString: String
     
@@ -26,5 +26,5 @@ struct MovieDetailsImdb: View {
 }
 
 #Preview {
-    MovieDetailsImdb(imdbId: "tt18412256")
+    ImdbWebView(imdbId: "tt18412256")
 }

@@ -8,7 +8,11 @@
 import Foundation
 import Alamofire
 
-final class NetworkManager {
+protocol NetworkProtocol {
+    func request<T: Decodable>(_ request: URLRequestConvertible, decodeTo type: T.Type, completion: @escaping (Result<T,NetworkError>) -> ())
+}
+
+final class NetworkManager: NetworkProtocol {
     static let shared = NetworkManager()
     
     private init() {}
