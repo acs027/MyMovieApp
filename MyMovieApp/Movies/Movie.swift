@@ -23,7 +23,7 @@ struct MovieResponse: Codable {
 
 struct Movie: Codable, Identifiable {
     let adult: Bool
-    let backdropPath: String
+    let backdropPath: String?
     let genreIDs: [Int]
     let id: Int
     let originalLanguage: String

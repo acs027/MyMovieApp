@@ -8,12 +8,15 @@
 import SwiftUI
 
 @main
+
 struct MyMovieAppApp: App {
     @AppStorage("isOnboarding") var isOnboarding: Bool = true
     @StateObject var viewModel = MoviesViewModel()
     @State var launchScreenPresented = false
     @StateObject var monitor = Monitor()
     let persistenceController = PersistenceController.shared
+    @State var selectedTab: CustomTab = .home
+    
     var body: some Scene {
         WindowGroup {
             NavigationStack {
@@ -23,9 +26,7 @@ struct MyMovieAppApp: App {
                         if isOnboarding {
                             OnboardingView()
                         } else {
-                            MoviesView()
-                                .environmentObject(viewModel)
-                                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                            mainViews
                         }
                     default:
                         Text("You are not connected to the internet.")
@@ -34,6 +35,29 @@ struct MyMovieAppApp: App {
                         .opacity(launchScreenPresented ? 0 : 1)
                 }
             }
+        }
+    }
+    
+    var mainViews: some View {
+        ZStack {
+            Group {
+                switch selectedTab {
+                case .home:
+                    MoviesView(selectedTab: $selectedTab)
+                        .environmentObject(viewModel)
+                        .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                case .popularMovies:
+                    MovieList(for: .popular)
+                case .upcomingMovies:
+                    MovieList(for: .upcoming)
+                case .nowplayingMovies:
+                    MovieList(for: .nowPlaying)
+                }
+            }
+            .safeAreaInset(edge: .bottom) {
+                CustomTabView(selectedTab: $selectedTab)
+            }
+//            CustomTabView(selectedTab: $selectedTab)
         }
     }
 }

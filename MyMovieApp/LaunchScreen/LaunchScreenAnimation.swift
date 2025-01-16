@@ -21,6 +21,7 @@ struct LaunchScreenAnimation: View {
                 .frame(width: imageSize, height: imageSize)
                 .rotationEffect(Angle(degrees: rotationDegree), anchor: UnitPoint(x: 0.5, y: 0))
         }
+        .ignoresSafeArea()
         .onAppear {
             withAnimation(.easeInOut(duration: 3)) {
                 imageSize = 0

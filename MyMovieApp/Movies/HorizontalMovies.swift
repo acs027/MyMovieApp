@@ -11,11 +11,12 @@ import CoreData
 struct HorizontalMovies: View {
     @EnvironmentObject var viewModel: MoviesViewModel
     @FetchRequest var movies: FetchedResults<CDMovie>
+    @Binding var selectedTab: CustomTab
     var category: MovieCategory
     var title: String
     var imageWidth = UIScreen.main.bounds.width / 3
     
-    init(for category: MovieCategory) {
+    init(for category: MovieCategory, selectedTab: Binding<CustomTab>) {
         self.category = category
         self.title = category.description
         let fetchRequest: NSFetchRequest<CDMovie> = CDMovie.fetchRequest()
@@ -23,6 +24,7 @@ struct HorizontalMovies: View {
         fetchRequest.sortDescriptors = []
         fetchRequest.fetchLimit = 20
         _movies = FetchRequest(fetchRequest: fetchRequest)
+        _selectedTab = selectedTab
     }
     
     var body: some View {
@@ -31,12 +33,10 @@ struct HorizontalMovies: View {
             if movies.isEmpty {
                 ProgressView()
                     .onAppear {
-                        Task {
-                            await fetchMovies()
-                        }
+                        viewModel.fetchFromAPI(for: category)
                     }
             } else {
-                horizontalScrollView
+                posters
             }
         }
     }
@@ -47,7 +47,7 @@ struct HorizontalMovies: View {
             .bold()
     }
     
-    var horizontalScrollView: some View {
+    var posters: some View {
         ScrollView(.horizontal) {
             LazyHStack {
                 ForEach(movies) { movie in
@@ -56,31 +56,22 @@ struct HorizontalMovies: View {
                             viewModel.showMovieDetails(of: movie)
                         }
                 }
-                RoundedRectangle(cornerRadius: 25)
-                    .stroke(lineWidth: 1)
+                RoundedRectangle(cornerRadius: 15)
                     .overlay {
                         Text("Load More")
+                            .foregroundStyle(.white)
+                        
                     }
-                    .frame(width: imageWidth)
+                    .frame(width: imageWidth, height: imageWidth * 1.5)
+                    .onTapGesture {
+                        withAnimation(.easeInOut) {
+                            selectedTab = category.tab
+                        }
+                    }
             }
         }
     }
     
-//    @ViewBuilder
-//    func moviePoster(of movie: CDMovie) -> some View {
-//        if let imageData =  viewModel.moviePosterData[Int(movie.id)] {
-//            Image(uiImage: UIImage(data: imageData)!)
-//        } else {
-//            ProgressView()
-//                .onAppear {
-//                    Task {
-//                        await viewModel.fetchImageData(for: movie)
-//                    }
-//                }
-//        }
-//    }
-    
-    @ViewBuilder
     func moviePoster(of movie: CDMovie) -> some View {
         AsyncImage(url: viewModel.posterUrl(for: movie)) { phase in
             switch phase {
@@ -88,61 +79,25 @@ struct HorizontalMovies: View {
                 image
                     .resizable()
                     .scaledToFit()
-                    .frame(maxWidth: .infinity)
                     .clipShape(RoundedRectangle(cornerRadius: 15))
-            case .failure(_):
-                Text("Failed to load image")
-            case .empty:
-                ProgressView()
-            @unknown default:
-                EmptyView()
+            default:
+                RoundedRectangle(cornerRadius: 15)
+                    .overlay {
+                        Text(movie.title ?? "")
+                            .foregroundStyle(.white)
+                    }
             }
         }
+        .frame(width: imageWidth, height: imageWidth * 1.5)
     }
-    
-    func fetchMovies() async {
-        switch category {
-        case .nowPlaying:
-            await viewModel.fetchNowPlayingMovies()
-        case .popular:
-            await viewModel.fetchPopularMovies()
-        case .upcoming:
-            await viewModel.fetchUpcomingMovies()
-        }
-    }
-}
-
-enum MovieCategory: CustomStringConvertible {
-    
-    case popular
-    case upcoming
-    case nowPlaying
-    
-    var description: String {
-        switch self {
-            case .popular: return "Popular Movies"
-            case .upcoming: return "Upcoming Movies"
-            case .nowPlaying: return "Now Playing Movies"
-        }
-    }
-    
-    var predicate: NSPredicate {
-           switch self {
-           case .popular:
-               return NSPredicate(format: "isPopular == %@", NSNumber(value: true))
-           case .upcoming:
-               return NSPredicate(format: "isUpcoming == %@", NSNumber(value: true))
-           case .nowPlaying:
-               return NSPredicate(format: "isNowPlaying == %@", NSNumber(value: true))
-           }
-       }
 }
 
 #Preview {
     @Previewable @StateObject var viewModel = MoviesViewModel()
+    @Previewable @State var selectedTab = CustomTab.home
     ScrollView{
         VStack {
-            HorizontalMovies(for: .popular)
+            HorizontalMovies(for: .popular, selectedTab: $selectedTab)
                 .environmentObject(viewModel)
                 .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
         }

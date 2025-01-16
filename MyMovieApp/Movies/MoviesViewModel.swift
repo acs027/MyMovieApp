@@ -14,7 +14,7 @@ final class MoviesViewModel: ObservableObject {
     
     private(set) var tappedMovie: CDMovie?
     private var service = MoviesService()
-    private var page = 1
+    private var fetcher = MoviesFetcher(context: PersistenceController.shared.container.viewContext)
     private var imageConfiguration: ImageConfiguration?
     private var context = PersistenceController.shared.container.viewContext
     
@@ -24,79 +24,17 @@ final class MoviesViewModel: ObservableObject {
     
     init() {
         imageConfiguration = MockDataProvider().imageConfiguration()
-        #if DEBUG
-            _ = MockDataProvider().popularMovies().map({ movie in
-                let popularMovie = CDMovie(from: movie, context: context)
-                let coinflip = Int.random(in: 0...2)
-                if coinflip == 0 {
-                    popularMovie.isPopular = true
-                } else if coinflip == 1 {
-                    popularMovie.isNowPlaying = true
-                } else {
-                    popularMovie.isUpcoming = true
-                }
-            })
-            PersistenceController.shared.save()
-        #endif
     }
     
-    
-    func fetchPopularMovies() async {
-        #if DEBUG
-        return
-        #endif
-        service.fetchPopularMovies(page: page) { [weak self] result in
+    func fetchFromAPI(for category: MovieCategory, page: Int = 1) {
+        fetcher.fetchMovies(ofType: category, page: page) { [weak self] result in
             guard let self else { return }
             switch result {
-            case .success(let movieResponse):
-                _ = movieResponse.results.map {
-                    let cdMovie = CDMovie(from: $0, context: self.context)
-                    cdMovie.isPopular = true
-                    print(cdMovie.title ?? "acs")
-                }
+            case .success:
+                break // Movies are saved in Core Data
             case .failure(let error):
-                errorMessage = error.localizedDescription
+                self.errorMessage = error.localizedDescription
                 debugPrint("\(error.localizedDescription)")
-            }
-        }
-    }
-    
-    func fetchUpcomingMovies() async {
-        #if DEBUG
-        return
-        #endif
-        service.fetchUpcomingMovies(page: page) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let movieResponse):
-                _ = movieResponse.results.map {
-                    let cdMovie = CDMovie(from: $0, context: self.context)
-                    cdMovie.isUpcoming = true
-                }
-            case .failure(let error):
-                errorMessage = error.localizedDescription
-                debugPrint("\(error.localizedDescription)")
-            }
-        }
-    }
-    
-    func fetchNowPlayingMovies() async {
-        #if DEBUG
-        return
-        #endif
-        service.fetchNowPlayingMovies(page: page) { [weak self] result in
-            guard let self else { return }
-            switch result {
-                case .success(let movieResponse):
-                _ = movieResponse.results.map {
-                    let cdMovie = CDMovie(from: $0, context: self.context)
-                    cdMovie.isNowPlaying = true
-                    
-                }
-                case .failure(let error):
-                    errorMessage = error.localizedDescription
-                    debugPrint("\(error.localizedDescription)")
-                
             }
         }
     }

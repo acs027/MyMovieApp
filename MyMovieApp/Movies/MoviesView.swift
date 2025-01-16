@@ -9,17 +9,18 @@ import SwiftUI
 
 struct MoviesView: View {
     @EnvironmentObject var viewModel: MoviesViewModel
+    @Binding var selectedTab: CustomTab
         
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading){
-                HorizontalMovies(for: .upcoming)
-                HorizontalMovies(for: .nowPlaying)
-                HorizontalMovies(for: .popular)
+            VStack(alignment: .leading){
+                HorizontalMovies(for: .upcoming, selectedTab: $selectedTab)
+                HorizontalMovies(for: .nowPlaying, selectedTab: $selectedTab)
+                HorizontalMovies(for: .popular, selectedTab: $selectedTab)
             }
         }
         .scrollIndicators(.hidden)
-        .padding()
+        .padding(.horizontal)
         .sheet(isPresented: $viewModel.isDetailsShowing, content: {
             let movieDetailsViewModel = MovieDetailsViewModel(id: viewModel.tappedMovieId)
             NavigationStack {
@@ -31,7 +32,8 @@ struct MoviesView: View {
 
 #Preview {
     @Previewable @StateObject var viewModel = MoviesViewModel()
-    MoviesView()
+    @Previewable @State var selectedTab = CustomTab.home
+    MoviesView(selectedTab: $selectedTab)
         .environmentObject(viewModel)
         .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
 }

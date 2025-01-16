@@ -20,6 +20,8 @@ protocol MoviesServiceProtocol {
     func fetchConfiguration(completion: @escaping (Result<ConfigurationResponse, NetworkError>) -> ())
     
     func fetchMovieDetails(id: Int, completion: @escaping (Result<MovieDetails, NetworkError>) -> ())
+    
+    func fetchMovies(query: String, completion: @escaping (Result<MovieResponse, NetworkError>) -> ())
 }
 
 final class MoviesService: MoviesServiceProtocol {
@@ -51,5 +53,9 @@ final class MoviesService: MoviesServiceProtocol {
     
     func fetchMovieDetails(id: Int, completion: @escaping (Result<MovieDetails, NetworkError>) -> ()) {
         network.request(Router.movieDetails(id: id), decodeTo: MovieDetails.self, completion: completion)
+    }
+    
+    func fetchMovies(query: String, completion: @escaping (Result<MovieResponse, NetworkError>) -> ()) {
+        network.request(Router.search(query: query), decodeTo: MovieResponse.self, completion: completion)
     }
 }
