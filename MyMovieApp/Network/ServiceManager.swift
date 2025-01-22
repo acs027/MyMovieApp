@@ -8,7 +8,7 @@
 import Foundation
 
 
-protocol MoviesServiceProtocol {
+protocol MovieServiceProtocol {
     func fetchPopularMovies(page: Int?, completion: @escaping (Result<MovieResponse, NetworkError>) -> ())
     
     func fetchNowPlayingMovies(page: Int?, completion: @escaping (Result<MovieResponse, NetworkError>) -> ())
@@ -24,7 +24,7 @@ protocol MoviesServiceProtocol {
     func fetchMovies(query: String, completion: @escaping (Result<MovieResponse, NetworkError>) -> ())
 }
 
-final class MoviesService: MoviesServiceProtocol {
+final class MovieService: MovieServiceProtocol {
     private let network: NetworkProtocol
     
     init(networkManager: NetworkProtocol = NetworkManager.shared) {

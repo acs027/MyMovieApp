@@ -10,25 +10,30 @@ import SwiftUI
 struct CustomTabView: View {
     @Binding var selectedTab: CustomTab
     @State var backgroundColor = Color.white
+    @State var isSearchPresented: Bool = false
     
+    @Namespace var animation
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 0) {
                 Color.white
                     .frame(height: 5)
                 HStack(spacing: 50) {
-                    popularMovies
+                    catalogue
                     upcomingMovies
                     Spacer()
                     nowPlayingMovies
-                    extraMovies
+                    popularMovies
                 }
                 .padding()
                 .frame(height: 70)
                 .frame(maxWidth: .infinity)
-                .background(.gray.opacity(0.5))
+                .background(.gray.opacity(0.7))
             }
             search
+        }
+        .fullScreenCover(isPresented: $isSearchPresented) {
+            SearchView(animation: animation)
         }
     }
     
@@ -48,34 +53,35 @@ struct CustomTabView: View {
                 .font(.largeTitle)
                 .bold()
         }
-        .offset(y:-25)
+        .matchedTransitionSource(id: "zoom", in: animation)
+        .onTapGesture {
+            isSearchPresented.toggle()
+        }
     }
     
-    var popularMovies: some View {
+    var catalogue: some View {
         Button {
-            withAnimation {
-                selectedTab = .home
-            }
+            changeTab(to: .catalogue)
         } label: {
             Image(systemName: "person")
                 .font(.largeTitle)
         }
-        .tint(selectedTab == .home ? .white : .black )
+        .tint(selectedTab == .catalogue ? .white : .black )
     }
     
     var upcomingMovies: some View {
         Button {
-            selectedTab = .popularMovies
+            changeTab(to: .upcomingMovies)
         } label: {
             Image(systemName: "arrow.up.circle")
                 .font(.largeTitle)
         }
-        .tint(selectedTab == .popularMovies ? .white : .black )
+        .tint(selectedTab == .upcomingMovies ? .white : .black )
     }
     
     var nowPlayingMovies: some View {
         Button {
-            selectedTab = .nowplayingMovies
+            changeTab(to: .nowplayingMovies)
         } label: {
             Image(systemName: "play")
                 .font(.largeTitle)
@@ -83,25 +89,29 @@ struct CustomTabView: View {
         .tint(selectedTab == .nowplayingMovies ? .white : .black)
     }
     
-    var extraMovies: some View {
+    var popularMovies: some View {
         Button {
-            selectedTab = .upcomingMovies
+            changeTab(to: .popularMovies)
         } label: {
             Image(systemName: "star")
                 .font(.largeTitle)
         }
-        .tint(selectedTab == .upcomingMovies ? .white : .black )
+        .tint(selectedTab == .popularMovies ? .white : .black )
+    }
+    
+    func changeTab(to newTab: CustomTab) {
+        selectedTab = newTab
     }
 }
 
 enum CustomTab {
-    case home
+    case catalogue
     case popularMovies
     case upcomingMovies
     case nowplayingMovies
 }
 
 #Preview {
-    @Previewable @State var selectedTab = CustomTab.home
+    @Previewable @State var selectedTab = CustomTab.catalogue
     CustomTabView(selectedTab: $selectedTab)
 }

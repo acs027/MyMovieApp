@@ -66,7 +66,7 @@ enum Router: URLRequestConvertible {
         case .search(query: let query):
             params["query"] = query
         default:
-            print("nothing")
+            return params
         }
         return params
     }

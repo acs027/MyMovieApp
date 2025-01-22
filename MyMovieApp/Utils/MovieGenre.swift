@@ -29,7 +29,6 @@ enum MovieGenre: Int, CaseIterable, Identifiable {
     case war = 10752
     case western = 37
 
-    // Computed property to provide the genre name
     var name: String {
         switch self {
         case .action: return "Action"
@@ -54,7 +53,6 @@ enum MovieGenre: Int, CaseIterable, Identifiable {
         }
     }
 
-    // Conformance to `Identifiable`
     var id: Int { rawValue }
 }
 

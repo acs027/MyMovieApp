@@ -13,7 +13,7 @@ class MovieDetailsViewModel: ObservableObject {
     @Published var backdropData: [Data] = []
     var errorMessage = ""
     let id: Int
-    private var detailsService: MoviesService
+    private var detailsService: MovieService
     private var imageConfiguration: ImageConfiguration?
     
     var backgroundColor: RGBA {
@@ -21,13 +21,13 @@ class MovieDetailsViewModel: ObservableObject {
     }
     
     init(id: Int) {
-        detailsService = MoviesService()
+        detailsService = MovieService()
         self.id = id
         imageConfiguration = MockDataProvider().imageConfiguration()
-        #if DEBUG
-        self.isDetailsLoading = false
-        self.movieDetails = MockDataProvider().movieDetails()
-        #endif
+//        #if DEBUG
+//        self.isDetailsLoading = false
+//        self.movieDetails = MockDataProvider().movieDetails()
+//        #endif
     }
     
     func fetchMovieDetails() async {
@@ -63,7 +63,7 @@ class MovieDetailsViewModel: ObservableObject {
             }
         } catch {
             isDetailsLoading = false
-            print("fetch image failed")
+            debugPrint("Image fetching failed")
         }
     }
 }

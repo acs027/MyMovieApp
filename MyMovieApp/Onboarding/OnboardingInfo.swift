@@ -15,7 +15,7 @@ struct OnboardingInfo {
     
     var info: [String] = [
         "Welcome to MyMovieApp",
-        "Please sign in to continue"
+        "Let's find movie for you."
     ]
     
 }

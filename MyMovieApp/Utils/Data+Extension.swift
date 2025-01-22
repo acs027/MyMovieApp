@@ -38,16 +38,3 @@ extension Data {
         return RGBA(r:CGFloat(bitmap[0]) / 255,g:CGFloat(bitmap[1]) / 255,b:CGFloat(bitmap[2]) / 255, a:CGFloat(bitmap[3]) / 350)
     }
 }
-
-struct RGBA {
-    var r: CGFloat
-    var g: CGFloat
-    var b: CGFloat
-    var a: CGFloat
-        
-    static var clear = RGBA(r: 0, g: 0, b: 0, a: 0)
-    
-    var color: UIColor {
-        UIColor(red: r, green: g, blue: b, alpha: a)
-    }
-}

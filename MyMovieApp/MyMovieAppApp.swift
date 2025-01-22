@@ -11,11 +11,15 @@ import SwiftUI
 
 struct MyMovieAppApp: App {
     @AppStorage("isOnboarding") var isOnboarding: Bool = true
-    @StateObject var viewModel = MoviesViewModel()
+    @StateObject var viewModel = CatalogueViewModel()
     @State var launchScreenPresented = false
     @StateObject var monitor = Monitor()
     let persistenceController = PersistenceController.shared
-    @State var selectedTab: CustomTab = .home
+    @State var selectedTab: CustomTab = .catalogue
+    
+    init() {
+        persistenceController.cleanOldData()
+    }
     
     var body: some Scene {
         WindowGroup {
@@ -23,7 +27,7 @@ struct MyMovieAppApp: App {
                 ZStack {
                     switch monitor.status {
                     case .connected:
-                        if isOnboarding {
+                        if isOnboarding &&  launchScreenPresented {
                             OnboardingView()
                         } else {
                             mainViews
@@ -40,24 +44,28 @@ struct MyMovieAppApp: App {
     
     var mainViews: some View {
         ZStack {
-            Group {
-                switch selectedTab {
-                case .home:
-                    MoviesView(selectedTab: $selectedTab)
-                        .environmentObject(viewModel)
-                        .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                case .popularMovies:
-                    MovieList(for: .popular)
-                case .upcomingMovies:
-                    MovieList(for: .upcoming)
-                case .nowplayingMovies:
-                    MovieList(for: .nowPlaying)
-                }
+            switch selectedTab {
+            case .catalogue:
+                CatalogueView(selectedTab: $selectedTab)
+                    .environmentObject(viewModel)
+                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                    .transition(.opacity)
+            case .upcomingMovies:
+                MovieList(for: .upcoming)
+                    .transition(.opacity)
+                    
+            case .nowplayingMovies:
+                MovieList(for: .nowPlaying)
+                    .transition(.opacity)
+                    
+            case .popularMovies:
+                MovieList(for: .popular)
+                    .transition(.opacity)
             }
-            .safeAreaInset(edge: .bottom) {
-                CustomTabView(selectedTab: $selectedTab)
-            }
-//            CustomTabView(selectedTab: $selectedTab)
+        }
+        .animation(.default, value: selectedTab)
+        .safeAreaInset(edge: .bottom) {
+            CustomTabView(selectedTab: $selectedTab)
         }
     }
 }

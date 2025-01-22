@@ -9,7 +9,7 @@ import SwiftUI
 import CoreData
 
 struct HorizontalMovies: View {
-    @EnvironmentObject var viewModel: MoviesViewModel
+    @EnvironmentObject var viewModel: CatalogueViewModel
     @FetchRequest var movies: FetchedResults<CDMovie>
     @Binding var selectedTab: CustomTab
     var category: MovieCategory
@@ -19,10 +19,7 @@ struct HorizontalMovies: View {
     init(for category: MovieCategory, selectedTab: Binding<CustomTab>) {
         self.category = category
         self.title = category.description
-        let fetchRequest: NSFetchRequest<CDMovie> = CDMovie.fetchRequest()
-        fetchRequest.predicate = category.predicate
-        fetchRequest.sortDescriptors = []
-        fetchRequest.fetchLimit = 20
+        let fetchRequest = PersistenceController.shared.fetchRequest(for: category)
         _movies = FetchRequest(fetchRequest: fetchRequest)
         _selectedTab = selectedTab
     }
@@ -60,16 +57,14 @@ struct HorizontalMovies: View {
                     .overlay {
                         Text("Load More")
                             .foregroundStyle(.white)
-                        
                     }
                     .frame(width: imageWidth, height: imageWidth * 1.5)
                     .onTapGesture {
-                        withAnimation(.easeInOut) {
-                            selectedTab = category.tab
-                        }
+                        selectedTab = category.tab
                     }
             }
         }
+        .scrollIndicators(.hidden)
     }
     
     func moviePoster(of movie: CDMovie) -> some View {
@@ -78,7 +73,7 @@ struct HorizontalMovies: View {
             case .success(let image):
                 image
                     .resizable()
-                    .scaledToFit()
+                    .frame(width: imageWidth, height: imageWidth * 1.5)
                     .clipShape(RoundedRectangle(cornerRadius: 15))
             default:
                 RoundedRectangle(cornerRadius: 15)
@@ -86,15 +81,15 @@ struct HorizontalMovies: View {
                         Text(movie.title ?? "")
                             .foregroundStyle(.white)
                     }
+                    .frame(width: imageWidth, height: imageWidth * 1.5)
             }
         }
-        .frame(width: imageWidth, height: imageWidth * 1.5)
     }
 }
 
 #Preview {
-    @Previewable @StateObject var viewModel = MoviesViewModel()
-    @Previewable @State var selectedTab = CustomTab.home
+    @Previewable @StateObject var viewModel = CatalogueViewModel()
+    @Previewable @State var selectedTab = CustomTab.catalogue
     ScrollView{
         VStack {
             HorizontalMovies(for: .popular, selectedTab: $selectedTab)

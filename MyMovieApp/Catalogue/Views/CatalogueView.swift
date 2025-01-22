@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct MoviesView: View {
-    @EnvironmentObject var viewModel: MoviesViewModel
+struct CatalogueView: View {
+    @EnvironmentObject var viewModel: CatalogueViewModel
     @Binding var selectedTab: CustomTab
-        
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading){
@@ -31,9 +31,9 @@ struct MoviesView: View {
 }
 
 #Preview {
-    @Previewable @StateObject var viewModel = MoviesViewModel()
-    @Previewable @State var selectedTab = CustomTab.home
-    MoviesView(selectedTab: $selectedTab)
+    @Previewable @StateObject var viewModel = CatalogueViewModel()
+    @Previewable @State var selectedTab = CustomTab.catalogue
+    CatalogueView(selectedTab: $selectedTab)
         .environmentObject(viewModel)
         .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
 }

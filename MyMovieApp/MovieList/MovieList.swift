@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MovieList: View {
     @ObservedObject var viewModel: MovieListViewModel
-    @State var isDetailsShowing = false
+//    @State var isDetailsShowing = false
     var category: MovieCategory
     var title: String
     var imageWidth = UIScreen.main.bounds.width / 4
@@ -19,7 +19,7 @@ struct MovieList: View {
         self.category = category
         self.title = category.description
     }
-
+    
     var body: some View {
         VStack(alignment: .leading) {
             if viewModel.movies.isEmpty {
@@ -31,10 +31,10 @@ struct MovieList: View {
         .padding(.horizontal)
         .navigationTitle(category.description)
     }
-        
+    
     var movies: some View {
         ScrollView {
-            LazyVStack {
+            LazyVStack(spacing: 15) {
                 ForEach(viewModel.movies) { movie in
                     HStack {
                         movieInfo(for: movie)
@@ -42,10 +42,11 @@ struct MovieList: View {
                         moviePoster(of: movie)
                     }
                     .onTapGesture {
-                        isDetailsShowing.toggle()
+                        print(movie.id)
+                        viewModel.showDetails(with: Int(movie.id))
                     }
-                    .sheet(isPresented: $isDetailsShowing, content: {
-                        let movieDetailsViewModel = MovieDetailsViewModel(id: Int(movie.id))
+                    .sheet(isPresented: $viewModel.isDetailsShowing, content: {
+                        let movieDetailsViewModel = MovieDetailsViewModel(id: viewModel.tappedMovieId)
                         NavigationStack {
                             MovieDetailsView(viewModel: movieDetailsViewModel)
                         }
@@ -67,7 +68,7 @@ struct MovieList: View {
             }
             .frame(height: 50)
             .onTapGesture {
-                viewModel.checkAndFetch()
+                viewModel.fetchMovies()
             }
     }
     
@@ -99,25 +100,24 @@ struct MovieList: View {
             .minimumScaleFactor(0.7)
     }
     
-    
-    @ViewBuilder
     func moviePoster(of movie: CDMovie) -> some View {
         AsyncImage(url: viewModel.posterUrl(for: movie)) { phase in
             switch phase {
             case .success(let image):
                 image
                     .resizable()
-                    .scaledToFit()
                     .clipShape(RoundedRectangle(cornerRadius: 15))
+                    .frame(width: imageWidth, height:
+                            imageWidth * 1.5)
             default:
                 RoundedRectangle(cornerRadius: 15)
+                    .frame(width: imageWidth, height: imageWidth * 1.5)
                     .overlay {
                         Text(movie.title ?? "")
                             .foregroundStyle(.white)
                     }
             }
         }
-        .frame(width: imageWidth, height: imageWidth * 1.5)
     }
 }
 

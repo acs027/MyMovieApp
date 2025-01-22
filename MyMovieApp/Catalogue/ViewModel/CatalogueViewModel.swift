@@ -1,5 +1,5 @@
 //
-//  MoviesViewModel.swift
+//  CatalogueViewModel.swift
 //  MyMovieApp
 //
 //  Created by ali cihan on 29.11.2024.
@@ -8,13 +8,13 @@
 import Foundation
 import CoreData
 
-final class MoviesViewModel: ObservableObject {
+final class CatalogueViewModel: ObservableObject {
     @Published var errorMessage: String? = nil
     @Published var isDetailsShowing = false
     
     private(set) var tappedMovie: CDMovie?
-    private var service = MoviesService()
-    private var fetcher = MoviesFetcher(context: PersistenceController.shared.container.viewContext)
+    private var service = MovieService()
+    private var fetcher = MovieFetcher(context: PersistenceController.shared.container.viewContext)
     private var imageConfiguration: ImageConfiguration?
     private var context = PersistenceController.shared.container.viewContext
     
@@ -31,7 +31,7 @@ final class MoviesViewModel: ObservableObject {
             guard let self else { return }
             switch result {
             case .success:
-                break // Movies are saved in Core Data
+                debugPrint("Movies are succesfully saved to core data")
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
                 debugPrint("\(error.localizedDescription)")
@@ -63,10 +63,6 @@ final class MoviesViewModel: ObservableObject {
     func showMovieDetails(of movie: CDMovie) {
         self.tappedMovie = movie
         self.isDetailsShowing = true
-    }
-    
-    func save() {
-        PersistenceController.shared.save()
     }
 }
 

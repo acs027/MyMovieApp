@@ -23,6 +23,7 @@ extension CDMovie {
         self.releaseDate = movie.releaseDate
         self.voteAverage = movie.voteAverage
         self.voteCount = Int32(movie.voteCount)
+        self.savedDate = Date()
         let genreIDs = movie.genreIDs.map {
             let genre = CDGenre(context: context)
             genre.id = Int32($0)

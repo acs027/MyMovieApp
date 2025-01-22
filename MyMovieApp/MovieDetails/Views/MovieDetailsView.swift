@@ -39,6 +39,7 @@ struct MovieDetailsView: View {
         }
         .frame(maxHeight: .infinity)
         .background(Color(uiColor: viewModel.backgroundColor.color))
+        .animation(.default, value: viewModel.backgroundColor.color)
     }
     
     @ViewBuilder
@@ -60,7 +61,7 @@ struct MovieDetailsView: View {
     }
     
     var movieTitle: some View {
-        Text(viewModel.movieDetails?.originalTitle ?? "Unknown")
+        Text(viewModel.movieDetails?.title ?? "Unknown")
             .font(.largeTitle)
             .bold()
     }

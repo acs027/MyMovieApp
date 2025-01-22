@@ -15,11 +15,11 @@ struct MockDataProvider {
                 let decoded = try JSONDecoder().decode(MovieResponse.self, from: data)
                 return decoded.results
             } catch {
-                print("Error occured while decoding Data")
+                debugPrint("Error occured while decoding Data")
                 return []
             }
         } else {
-            print("Error occured while getting url")
+            debugPrint("Error occured while getting url")
             return []
         }
     }
@@ -31,11 +31,11 @@ struct MockDataProvider {
                 let decoded = try JSONDecoder().decode(MovieDetails.self, from: data)
                 return decoded
             } catch {
-                print("Error occured while decoding Data")
+                debugPrint("Error occured while decoding Data")
                 return nil
             }
         } else {
-            print("Error occured while getting url")
+            debugPrint("Error occured while getting url")
             return nil
         }
     }
@@ -47,11 +47,11 @@ struct MockDataProvider {
                 let decoded = try JSONDecoder().decode(ConfigurationResponse.self, from: data)
                 return decoded.images
             } catch {
-                print("Error occured while decoding ImageConfiguration Data")
+                debugPrint("Error occured while decoding ImageConfiguration Data")
                 return nil
             }
         } else {
-            print("Error occured while getting url")
+            debugPrint("Error occured while getting url")
             return nil
         }
     }
