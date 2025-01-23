@@ -7,8 +7,8 @@
 
 import Foundation
 
-final class ImageConfigurationProvider {
-    static let shared = ImageConfigurationProvider()
+final class ImageConfigurationManager {
+    static let shared = ImageConfigurationManager()
     private var service: MovieServiceProtocol
     private var imageConfiguration: ImageConfiguration? {
         didSet {

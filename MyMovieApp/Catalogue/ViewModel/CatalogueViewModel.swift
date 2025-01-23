@@ -15,7 +15,7 @@ final class CatalogueViewModel: ObservableObject {
     private(set) var tappedMovie: CDMovie?
     private var service = MovieService()
     private var fetcher = MovieFetcher(context: PersistenceController.shared.container.viewContext)
-    private var imageConfiguration: ImageConfiguration? = ImageConfigurationProvider.shared.getImageConfiguration()
+    private var imageConfiguration: ImageConfiguration? = ImageConfigurationManager.shared.getImageConfiguration()
     private var context = PersistenceController.shared.container.viewContext
     
     var tappedMovieId: Int {

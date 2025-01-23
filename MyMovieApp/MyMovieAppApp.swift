@@ -18,7 +18,7 @@ struct MyMovieAppApp: App {
     
     init() {
         persistenceController.cleanOldData()
-        ImageConfigurationProvider.shared.fetchConfiguration()
+        ImageConfigurationManager.shared.fetchConfiguration()
     }
     
     var body: some Scene {

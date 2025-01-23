@@ -19,7 +19,7 @@ class MovieListViewModel: ObservableObject {
     private let context: NSManagedObjectContext
     private let service: MovieService
     private let fetcher: MovieFetcher
-    private let imageConfiguration = ImageConfigurationProvider.shared.getImageConfiguration()
+    private let imageConfiguration = ImageConfigurationManager.shared.getImageConfiguration()
     private let movieCategory: MovieCategory
     private var isFetchingAPI = false
     

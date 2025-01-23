@@ -14,7 +14,7 @@ class MovieDetailsViewModel: ObservableObject {
     var errorMessage = ""
     let id: Int
     private var detailsService: MovieService
-    private var imageConfiguration: ImageConfiguration? = ImageConfigurationProvider.shared.getImageConfiguration()
+    private var imageConfiguration: ImageConfiguration? = ImageConfigurationManager.shared.getImageConfiguration()
     
     var backgroundColor: RGBA {
         backdropData.first?.averageColorRGBA ?? .clear
