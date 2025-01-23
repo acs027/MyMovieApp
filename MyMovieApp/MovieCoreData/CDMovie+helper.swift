@@ -14,7 +14,7 @@ extension CDMovie {
         self.init(context: context)
         self.title = movie.title
         self.adult = movie.adult
-        self.id = Int32(movie.id)
+        self.id = Int64(movie.id)
         self.originalTitle = movie.originalTitle
         self.originalLanguage = movie.originalLanguage
         self.overview = movie.overview
@@ -22,7 +22,7 @@ extension CDMovie {
         self.posterPath = movie.posterPath
         self.releaseDate = movie.releaseDate
         self.voteAverage = movie.voteAverage
-        self.voteCount = Int32(movie.voteCount)
+        self.voteCount = Int64(movie.voteCount)
         self.savedDate = Date()
         let genreIDs = movie.genreIDs.map {
             let genre = CDGenre(context: context)

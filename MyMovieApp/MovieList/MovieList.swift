@@ -101,22 +101,15 @@ struct MovieList: View {
     }
     
     func moviePoster(of movie: CDMovie) -> some View {
-        AsyncImage(url: viewModel.posterUrl(for: movie)) { phase in
-            switch phase {
-            case .success(let image):
-                image
-                    .resizable()
-                    .clipShape(RoundedRectangle(cornerRadius: 15))
-                    .frame(width: imageWidth, height:
-                            imageWidth * 1.5)
-            default:
-                RoundedRectangle(cornerRadius: 15)
-                    .frame(width: imageWidth, height: imageWidth * 1.5)
-                    .overlay {
-                        Text(movie.title ?? "")
-                            .foregroundStyle(.white)
-                    }
-            }
+        MoviePoster(movieTitle: movie.title, posterURL: viewModel.posterUrl(for: movie), cornerRadius: Constants.Poster.cornerRadius, posterWidth: Constants.Poster.width, posterHeight: Constants.Poster.height)
+    }
+    
+    private struct Constants {
+        struct Poster {
+            static let width = UIScreen.main.bounds.width / 4
+            static let aspectRatio = 1.5
+            static let height = width * aspectRatio
+            static let cornerRadius: CGFloat = 15
         }
     }
 }

@@ -14,7 +14,7 @@ class MovieDetailsViewModel: ObservableObject {
     var errorMessage = ""
     let id: Int
     private var detailsService: MovieService
-    private var imageConfiguration: ImageConfiguration?
+    private var imageConfiguration: ImageConfiguration? = ImageConfigurationProvider.shared.getImageConfiguration()
     
     var backgroundColor: RGBA {
         backdropData.first?.averageColorRGBA ?? .clear
@@ -23,17 +23,10 @@ class MovieDetailsViewModel: ObservableObject {
     init(id: Int) {
         detailsService = MovieService()
         self.id = id
-        imageConfiguration = MockDataProvider().imageConfiguration()
-//        #if DEBUG
-//        self.isDetailsLoading = false
-//        self.movieDetails = MockDataProvider().movieDetails()
-//        #endif
     }
     
-    func fetchMovieDetails() async {
-        DispatchQueue.main.async {
-            self.isDetailsLoading = true
-        }
+    func fetchMovieDetails() {
+        self.isDetailsLoading = true
         detailsService.fetchMovieDetails(id: id) { [weak self] result in
             guard let self else { return }
             switch result {

@@ -19,7 +19,7 @@ class MovieListViewModel: ObservableObject {
     private let context: NSManagedObjectContext
     private let service: MovieService
     private let fetcher: MovieFetcher
-    private let imageConfiguration = MockDataProvider().imageConfiguration()
+    private let imageConfiguration = ImageConfigurationProvider.shared.getImageConfiguration()
     private let movieCategory: MovieCategory
     private var isFetchingAPI = false
     
@@ -31,8 +31,6 @@ class MovieListViewModel: ObservableObject {
         fetchMovies()
     }
     
-    
-    
     // MARK: -Fetch movies
     func fetchMovies() {
         let movies = PersistenceController.shared.fetchMovies(for: movieCategory, offset: dataOffset)
@@ -40,13 +38,11 @@ class MovieListViewModel: ObservableObject {
             self.movies += movies.filter { movie in
                 !self.movies.contains(where: { $0.id == movie.id })
             }
-//            self.movies += movies
             isFetchingAPI = false
             debugPrint(movies.count,self.movies.count)
         } else if !isFetchingAPI {
             isFetchingAPI = true
-            let additional = (self.movies.count % 20) == 0 ? 0 : 1
-            let page = (self.movies.count / 20) + 1 + additional
+            let page = UserDefaults.standard.integer(forKey: movieCategory.pageKey) + 1
             fetchFromAPI(for: movieCategory, page: page)
         }
     }

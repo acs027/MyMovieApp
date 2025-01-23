@@ -12,12 +12,12 @@ final class MovieFetcher {
     private var service: MovieServiceProtocol
     private var context: NSManagedObjectContext
     private let fetchQueue = DispatchQueue(label: "com.acs027.moviesFetcherQueue")
-
+    
     init(service: MovieServiceProtocol = MovieService(), context: NSManagedObjectContext) {
         self.service = service
         self.context = context
     }
-
+    
     func fetchMovies(ofType category: MovieCategory, page: Int = 1, completion: @escaping (Result<Void, NetworkError>) -> Void) {
         fetchQueue.async {
             let fetchFunction: (Int?, @escaping (Result<MovieResponse, NetworkError>) -> Void) -> Void
@@ -28,11 +28,11 @@ final class MovieFetcher {
                 fetchFunction = self.service.fetchUpcomingMovies
             case .nowPlaying:
                 fetchFunction = self.service.fetchNowPlayingMovies
-    //        case .topRated:
-    //            fetchFunction = service.fetchTopRatedMovies
+                //        case .topRated:
+                //            fetchFunction = service.fetchTopRatedMovies
             }
             debugPrint("API called")
-
+            
             fetchFunction(page) { [weak self] result in
                 guard let self else { return }
                 switch result {
@@ -41,8 +41,10 @@ final class MovieFetcher {
                     movieResponse.results.forEach { movie in
                         let cdMovie = CDMovie(from: movie, context: self.context)
                         cdMovie.setFlag(for: category)
+                        cdMovie.setDate(for: category)
                     }
                     PersistenceController.shared.save()
+                    UserDefaults.standard.set(page, forKey: category.pageKey)
                     completion(.success(()))
                 case .failure(let error):
                     completion(.failure(error))
@@ -57,14 +59,22 @@ extension CDMovie {
         switch category {
         case .popular:
             self.isPopular = true
-            self.popularDate = Date()
         case .upcoming:
             self.isUpcoming = true
-            self.upcomingDate = Date()
         case .nowPlaying:
             self.isNowPlaying = true
+            //        case .topRated:
+        }
+    }
+    
+    func setDate(for category: MovieCategory) {
+        switch category {
+        case .popular:
+            self.popularDate = Date()
+        case .upcoming:
+            self.upcomingDate = Date()
+        case .nowPlaying:
             self.nowPlayingDate = Date()
-//        case .topRated:
         }
     }
 }

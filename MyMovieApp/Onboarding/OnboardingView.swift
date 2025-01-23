@@ -35,14 +35,14 @@ struct OnboardingView: View {
                 .scaledToFit()
                 .frame(width: 100, height: 100)
                 .scaleEffect(isAnimation ? 1.1 : 0.9)
-                .animation(.easeIn(duration: 1), value: isAnimation)
             Text(viewModel.info(index: index))
                 .font(.system(.title3, design: .rounded))
                 .opacity(isAnimation ? 1 : 0)
-                .animation(.easeInOut(duration: 1), value: isAnimation)
         }
         .onAppear {
-            self.isAnimation = true
+            withAnimation(.easeIn(duration: 0.5)) {
+                self.isAnimation = true
+            }
         }
     }
     

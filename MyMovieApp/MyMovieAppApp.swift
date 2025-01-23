@@ -8,7 +8,6 @@
 import SwiftUI
 
 @main
-
 struct MyMovieAppApp: App {
     @AppStorage("isOnboarding") var isOnboarding: Bool = true
     @StateObject var viewModel = CatalogueViewModel()
@@ -19,6 +18,7 @@ struct MyMovieAppApp: App {
     
     init() {
         persistenceController.cleanOldData()
+        ImageConfigurationProvider.shared.fetchConfiguration()
     }
     
     var body: some Scene {

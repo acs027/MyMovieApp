@@ -157,11 +157,8 @@ struct MovieDetailsView: View {
         }
     }
     
-    
     func fetchMovieDetails() {
-        Task {
-            await viewModel.fetchMovieDetails()
-        }
+        viewModel.fetchMovieDetails()
     }
 }
 

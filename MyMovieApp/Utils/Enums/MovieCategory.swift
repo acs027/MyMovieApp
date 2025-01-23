@@ -38,4 +38,12 @@ enum MovieCategory: CustomStringConvertible {
         case .upcoming: return .upcomingMovies
         }
     }
+    
+    var pageKey: String {
+        switch self {
+        case .nowPlaying: return "MyMovieAppNowPlayingPage"
+        case .popular: return "MyMovieAppPopularPage"
+        case .upcoming: return "MyMovieAppUpcomingPage"
+        }
+    }
 }

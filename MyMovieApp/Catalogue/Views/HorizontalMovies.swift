@@ -14,7 +14,6 @@ struct HorizontalMovies: View {
     @Binding var selectedTab: CustomTab
     var category: MovieCategory
     var title: String
-    var imageWidth = UIScreen.main.bounds.width / 3
     
     init(for category: MovieCategory, selectedTab: Binding<CustomTab>) {
         self.category = category
@@ -53,12 +52,14 @@ struct HorizontalMovies: View {
                             viewModel.showMovieDetails(of: movie)
                         }
                 }
-                RoundedRectangle(cornerRadius: 15)
+                RoundedRectangle(cornerRadius: Constants.Poster.cornerRadius)
                     .overlay {
-                        Text("Load More")
+                        Text("Discover more")
                             .foregroundStyle(.white)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.5)
                     }
-                    .frame(width: imageWidth, height: imageWidth * 1.5)
+                    .frame(width: Constants.Poster.width, height: Constants.Poster.height)
                     .onTapGesture {
                         selectedTab = category.tab
                     }
@@ -68,21 +69,15 @@ struct HorizontalMovies: View {
     }
     
     func moviePoster(of movie: CDMovie) -> some View {
-        AsyncImage(url: viewModel.posterUrl(for: movie)) { phase in
-            switch phase {
-            case .success(let image):
-                image
-                    .resizable()
-                    .frame(width: imageWidth, height: imageWidth * 1.5)
-                    .clipShape(RoundedRectangle(cornerRadius: 15))
-            default:
-                RoundedRectangle(cornerRadius: 15)
-                    .overlay {
-                        Text(movie.title ?? "")
-                            .foregroundStyle(.white)
-                    }
-                    .frame(width: imageWidth, height: imageWidth * 1.5)
-            }
+        MoviePoster(movieTitle: movie.title, posterURL: viewModel.posterUrl(for: movie), cornerRadius: Constants.Poster.cornerRadius, posterWidth: Constants.Poster.width, posterHeight: Constants.Poster.height)
+    }
+    
+    private struct Constants {
+        struct Poster {
+            static let width = UIScreen.main.bounds.width / 3
+            static let aspectRatio = 1.5
+            static let height = width * aspectRatio
+            static let cornerRadius: CGFloat = 15
         }
     }
 }

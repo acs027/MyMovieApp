@@ -15,15 +15,11 @@ final class CatalogueViewModel: ObservableObject {
     private(set) var tappedMovie: CDMovie?
     private var service = MovieService()
     private var fetcher = MovieFetcher(context: PersistenceController.shared.container.viewContext)
-    private var imageConfiguration: ImageConfiguration?
+    private var imageConfiguration: ImageConfiguration? = ImageConfigurationProvider.shared.getImageConfiguration()
     private var context = PersistenceController.shared.container.viewContext
     
     var tappedMovieId: Int {
         return Int(tappedMovie?.id ?? 0)
-    }
-    
-    init() {
-        imageConfiguration = MockDataProvider().imageConfiguration()
     }
     
     func fetchFromAPI(for category: MovieCategory, page: Int = 1) {
@@ -34,19 +30,6 @@ final class CatalogueViewModel: ObservableObject {
                 debugPrint("Movies are succesfully saved to core data")
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
-                debugPrint("\(error.localizedDescription)")
-            }
-        }
-    }
-    
-    func fetchConfiguration() async {
-        service.fetchConfiguration { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let configurationResponse):
-                imageConfiguration = configurationResponse.images
-            case .failure(let error):
-                errorMessage = error.localizedDescription
                 debugPrint("\(error.localizedDescription)")
             }
         }
