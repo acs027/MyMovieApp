@@ -86,7 +86,7 @@ enum Router: URLRequestConvertible {
         urlRequest.timeoutInterval = 10
         urlRequest.allHTTPHeaderFields = [
             "accept": "application/json",
-            "Authorization": "Bearer \(Bundle.main.object(forInfoDictionaryKey: "Api_Key")!)"
+            "Authorization": "Bearer \(Bundle.main.object(forInfoDictionaryKey: "API_KEY")!)"
             
         ]
         

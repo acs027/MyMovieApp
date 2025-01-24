@@ -53,9 +53,10 @@ struct HorizontalMovies: View {
                         }
                 }
                 RoundedRectangle(cornerRadius: Constants.Poster.cornerRadius)
+                    .fill(.secondary)
                     .overlay {
                         Text("Discover more")
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.primary)
                             .lineLimit(2)
                             .minimumScaleFactor(0.5)
                     }
