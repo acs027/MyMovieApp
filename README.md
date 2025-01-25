@@ -4,11 +4,8 @@ A SwiftUI-based movie app that lets users explore movies and stay updated with t
 
 <p align="center">
     <img width="364" alt="Image" src="https://github.com/user-attachments/assets/322c26f5-b2c8-458b-8163-0303982a8b43" alt="Dark mode" width="300"/>
-
     <img width="364" alt="Image" src="https://github.com/user-attachments/assets/9483a608-4453-47b0-8cd9-ae9595e82052" alt="Light mode" width="300"/>
-
     <img width="364" alt="Image" src="https://github.com/user-attachments/assets/09247216-556a-4ef5-874f-861810d5f3f4" alt="Movie List" width="300"/>
-
     <img width="364" alt="Image" src="https://github.com/user-attachments/assets/985c28b4-9ca1-4ec4-83d2-509df50b701f" alt="Movie Detail View" width="300"/>
 </p>
 
